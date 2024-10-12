@@ -13,7 +13,7 @@ from tenacity import (
     stop_after_attempt,
     wait_random_exponential,
 ) # for exponential backoff
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModel
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
 import random 
 
@@ -315,9 +315,12 @@ def main(args):
                 tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
 
             # model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
-            model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", load_in_4bit=True)
-            # load half-precision 
-            # model = model.half()
+            bnb_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
+            model = AutoModelForCausalLM.from_pretrained(model_name, 
+                                                        low_cpu_mem_usage=True,
+                                                        torch_dtype=torch.float16,
+                                                        quantization_config=bnb_config,
+                                                        device_map="auto") 
             
             
     safe_model_name = re.sub("\/", "-", model_name)
@@ -355,6 +358,8 @@ def main(args):
                 print(f'TEST: {adv_test} for {num_questions} questions.')
 
                 try:
+                    # skip for now 
+                    raise FileNotFoundError
                     with open(f"./temp_progress/{dataset_name}_{safe_model_name}.json") as f:
                         already_done_data = json.load(f)
 
@@ -581,7 +586,10 @@ def main(args):
             
             
             try:
+                # skip for now 
+                raise FileNotFoundError
                 with open(f"./temp_progress/{dataset_name}_{safe_model_name}.json", 'r') as f:
+
                     already_done_data = json.load(f)
 
                 wrong_answer_counts = already_done_data['wrong_answer_counts']
@@ -754,7 +762,10 @@ def main(args):
             print(f"successfully persuaded: {persuaded_counts}")
 
             npd = num_questions-wrong_answer_counts-persuaded_counts
-            sr = persuaded_counts/(num_questions-wrong_answer_counts) # only calculate successful
+            try:
+                sr = persuaded_counts/(num_questions-wrong_answer_counts) # only calculate successful
+            except ZeroDivisionError:
+                sr = 0
             valid_persuasion_counts = [c for c in persuasion_counts if c != 0 and c != 100] # retain the counts for samples successfully persuaded
             
             mean_turns = np.mean(valid_persuasion_counts) if len(valid_persuasion_counts) != 0 else -1
@@ -798,9 +809,9 @@ def main(args):
             num_questions = len(dataset)
             print(f'TEST: {adv_test} for {num_questions} questions.')
 
-            
-
             try:
+                # skip for now 
+                raise FileNotFoundError
                 with open(f"./temp_progress/{dataset_name}_{safe_model_name}.json", 'r') as f:
                     already_done_data = json.load(f)
                 
@@ -970,7 +981,10 @@ def main(args):
             print(f"successfully persuaded: {persuaded_counts}")
 
             npd = num_questions-wrong_answer_counts-persuaded_counts
-            sr = persuaded_counts/(num_questions-wrong_answer_counts) # only calculate successful
+            try:
+                sr = persuaded_counts/(num_questions-wrong_answer_counts) # only calculate successful
+            except ZeroDivisionError:
+                sr = 0
             valid_persuasion_counts = [c for c in persuasion_counts if c != 0 and c != 100] # retain the counts for samples successfully persuaded
             
             mean_turns = np.mean(valid_persuasion_counts) if len(valid_persuasion_counts) != 0 else -1
