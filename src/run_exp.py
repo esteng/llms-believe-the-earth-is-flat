@@ -260,7 +260,7 @@ def chat_completion(model_name, model, tokenizer, messages, temperature=0.7, top
     
 
 def check_and_write_header(dataset_name, safe_model_name, seed=12):
-    path = Path(f"./results_{seed}_seed/{dataset_name}_{safe_model_name}.csv")
+    path = Path(f"./new_results_{seed}_seed/{dataset_name}_{safe_model_name}.csv")
     done_settings = []
 
     if path.exists():
@@ -269,14 +269,14 @@ def check_and_write_header(dataset_name, safe_model_name, seed=12):
             rows = [x for x in reader]
             done_settings = [r['passage'] for r  in rows]
     else:
-        with open(f'./results_{seed}_seed/{dataset_name}_{safe_model_name}.csv', 'w', newline='') as f:
+        with open(f'./new_results_{seed}_seed/{dataset_name}_{safe_model_name}.csv', 'w', newline='') as f:
             writer = csv.writer(f)
             header = ['model', 'dataset', 'passage', 'SR', 'meanT', 'maxT', 'minT', 'wa', 'pd' , 'npd', 'persuasion_counts', 'correct_num']
             writer.writerow(header)
     return done_settings
 
 def main(args):
-    out_path = Path(f"./results_{args.seed}_seed/")
+    out_path = Path(f"./new_results_{args.seed}_seed/")
     out_path.mkdir(parents=True, exist_ok=True)
 
     model_name = args.model
@@ -349,7 +349,8 @@ def main(args):
             done_settings = check_and_write_header(dataset_name, safe_model_name, args.seed)
             # types of test
             # test = ['control', 'credibility', 'logical', 'emotional']
-            test = ['logical']
+            test = ['credibility', 'emotional']
+            # test = ['logical']
             test = [x for x in test if x not in done_settings]
 
             # perform the test
@@ -554,7 +555,7 @@ def main(args):
                 print(f"min turns: {min_turns}")
 
                 safe_model_name = re.sub("\/", "-", model_name)
-                with open(f'./results_{args.seed}_seed/{dataset_name}_{safe_model_name}.csv', 'a', newline='') as f:
+                with open(f'./new_results_{args.seed}_seed/{dataset_name}_{safe_model_name}.csv', 'a', newline='') as f:
                     writer = csv.writer(f)
                     writer.writerow([model_name,dataset_name,adv_test,sr,mean_turns,max_turns,min_turns,wrong_answer_counts,persuaded_counts,npd,";".join([str(c) for c in persuasion_counts]), ";".join([str(c) for c in correct_num])])
 
@@ -575,7 +576,8 @@ def main(args):
 
         # types of test
         # test = ['control', 'credibility', 'logical', 'emotional']
-        test = ['logical']
+        test = ['credibility', 'emotional']
+        # test = ['logical']
         test = [x for x in test if x not in done_settings]
 
 
@@ -778,7 +780,7 @@ def main(args):
             print(f"min turns: {min_turns}")
 
             safe_model_name = re.sub("\/", "-", model_name)
-            with open(f'./results_{args.seed}_seed/{dataset_name}_{safe_model_name}.csv', 'a', newline='') as f:
+            with open(f'./new_results_{args.seed}_seed/{dataset_name}_{safe_model_name}.csv', 'a', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow([model_name,dataset_name,adv_test,sr,mean_turns,max_turns,min_turns,wrong_answer_counts,persuaded_counts,npd,";".join([str(c) for c in persuasion_counts]),";".join([str(c) for c in correct_num])])
 
@@ -801,7 +803,8 @@ def main(args):
         # types of test
         # test = ['control', 'credibility', 'logical', 'emotional']
         # for now, just do logical 
-        test = ['logical']
+        # test = ['logical']
+        test = ['credibility', 'emotional']
         # filter
         test = [x for x in test if x not in done_settings]
 
@@ -997,7 +1000,7 @@ def main(args):
             print(f"min turns: {min_turns}")
 
             safe_model_name = re.sub("\/", "-", model_name)
-            with open(f'./results_{args.seed}_seed/{dataset_name}_{safe_model_name}.csv', 'a', newline='') as f:
+            with open(f'./new_results_{args.seed}_seed/{dataset_name}_{safe_model_name}.csv', 'a', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow([model_name,dataset_name,adv_test,sr,mean_turns,max_turns,min_turns,wrong_answer_counts,persuaded_counts,npd,";".join([str(c) for c in persuasion_counts]),  ";".join([str(c) for c in correct_num])])
     
